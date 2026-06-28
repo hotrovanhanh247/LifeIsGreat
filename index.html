@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,400;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
 body { font-family: 'Plus Jakarta Sans', sans-serif; background: oklch(98.5% 0.01 80); color: oklch(18% 0.04 145); overflow-x: hidden; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pageFade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
@@ -277,7 +277,7 @@ function home(d) {
       <p style="font-size:20px;line-height:1.78;color:oklch(36% 0.04 145);margin-bottom:40px;">${esc(d.missionText2)}</p>
       <button data-go="mission" style="display:inline-flex;align-items:center;gap:8px;background:oklch(42% 0.14 145);color:white;padding:15px 30px;border-radius:100px;font-weight:600;font-size:17px;border:none;cursor:pointer;font-family:inherit;">${esc(d.missionCTA)} →</button>
     </div>
-    <div style="position:relative;">
+    <div style="position:relative;overflow:hidden;border-radius:24px;">
       <div style="position:absolute;inset:-24px;background:oklch(92% 0.06 145);border-radius:28px;transform:rotate(3deg);z-index:0;"></div>
       <img src="${enc('photos-1782578667966.jpg')}" alt="Liny — Founder" style="position:relative;z-index:1;width:100%;border-radius:22px;object-fit:cover;aspect-ratio:3/4;box-shadow:0 24px 64px rgba(0,0,0,0.12);">
     </div>
