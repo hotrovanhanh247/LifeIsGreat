@@ -13,12 +13,15 @@ html { scroll-behavior: smooth; }
 body { font-family: 'Plus Jakarta Sans', sans-serif; background: oklch(98.5% 0.01 80); color: oklch(18% 0.04 145); overflow-x: hidden; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pageFade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+#hamburger { display: none; }
+#mob-menu  { display: none; }
 
 /* ─── Tablet ≤1024px ─── */
 @media (max-width: 1024px) {
   #activities-grid, #founders-grid { grid-template-columns: repeat(3,1fr) !important; }
   #stats-grid { grid-template-columns: repeat(2,1fr) !important; }
   #mission-grid, #contact-grid { grid-template-columns: 1fr !important; }
+  #mission-origin-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
   #gallery-grid { grid-template-columns: 1fr 1fr !important; grid-template-rows: auto !important; }
   #gallery-main { grid-row: auto !important; }
   #gallery-page-grid { grid-template-columns: 1fr 1fr !important; grid-template-rows: auto !important; }
@@ -32,11 +35,12 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: oklch(98.5% 0.0
 
 /* ─── Mobile ≤640px ─── */
 @media (max-width: 640px) {
-  nav { padding: 0 20px !important; height: 64px !important; }
-  nav button[data-go="home"] { font-size: 24px !important; }
+  nav { padding: 0 16px !important; height: 60px !important; }
+  nav button[data-go="home"] { font-size: 22px !important; }
   .t-navMission, .t-navActivities, .t-navFounders, .t-navGallery, .t-navContact { display: none !important; }
-  #nav-links { gap: 0 !important; }
-  section, .pad { padding-left: 20px !important; padding-right: 20px !important; }
+  #nav-links { gap: 8px !important; }
+  #hamburger { display: flex !important; align-items: center; justify-content: center; }
+  .pad { padding-left: 20px !important; padding-right: 20px !important; }
 
   #hero { padding-top: 80px !important; padding-bottom: 56px !important; }
   #activities { padding-top: 56px !important; padding-bottom: 56px !important; }
@@ -50,17 +54,20 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: oklch(98.5% 0.0
   #gallery-grid    { grid-template-columns: 1fr !important; grid-template-rows: repeat(5,220px) !important; }
   #gallery-page-grid { grid-template-columns: 1fr !important; grid-template-rows: repeat(5,220px) !important; }
   #gallery-page-row2 { grid-template-columns: 1fr !important; }
+  #gallery-page-row2 > div { height: 220px !important; }
 
   .founder-photo { height: 220px !important; }
   .act-img { height: 200px !important; }
   .stat-num { font-size: 52px !important; }
+  .mission-origin-img { height: 240px !important; }
+  #contact-left-panel { min-height: 460px !important; }
 
   /* Timeline dot — mobile */
   .tl-year-col { width: 60px !important; }
   .tl-year-num { font-size: 20px !important; }
   .tl-loc      { font-size: 11px !important; }
   .tl-dot-col  { width: 28px !important; }
-  .tl-line     { left: 73px !important; } /* 60 + 28/2 - 1 */
+  .tl-line     { left: 73px !important; }
   .tl-content h3 { font-size: 18px !important; }
   .tl-content p  { font-size: 15px !important; }
   .tl-row { margin-bottom: 40px !important; }
@@ -73,7 +80,8 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: oklch(98.5% 0.0
   .tl-year-num { font-size: 16px !important; }
   .tl-loc      { display: none !important; }
   .tl-dot-col  { width: 24px !important; }
-  .tl-line     { left: 57px !important; } /* 46 + 24/2 - 1 */
+  .tl-line     { left: 57px !important; }
+  #hero h1     { font-size: 52px !important; }
 }
 </style>
 </head>
@@ -87,8 +95,18 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: oklch(98.5% 0.0
     <button data-go="gallery" class="t-navGallery" style="color:rgba(255,255,255,0.88);background:none;border:none;cursor:pointer;font-size:22px;font-weight:700;font-family:inherit;"></button>
     <button data-go="contact" class="t-navContact" style="color:rgba(255,255,255,0.88);background:none;border:none;cursor:pointer;font-size:22px;font-weight:700;font-family:inherit;"></button>
     <button id="lang-btn" style="background:oklch(75% 0.13 80);color:oklch(22% 0.08 80);border:none;padding:10px 24px;border-radius:100px;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:0.06em;"></button>
+    <button id="hamburger" aria-label="Menu" style="background:none;border:none;cursor:pointer;color:white;font-size:26px;padding:6px 4px;line-height:1;">☰</button>
   </div>
 </nav>
+
+<div id="mob-menu" style="position:fixed;inset:0;z-index:200;background:rgba(14,34,16,0.97);backdrop-filter:blur(14px);flex-direction:column;align-items:center;justify-content:center;gap:36px;">
+  <button id="mob-close" aria-label="Đóng menu" style="position:absolute;top:18px;right:18px;background:none;border:none;color:rgba(255,255,255,0.55);font-size:36px;cursor:pointer;line-height:1;padding:8px;">✕</button>
+  <button class="mob-nav" data-go="mission"    style="color:white;background:none;border:none;font-size:30px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;padding:4px 0;"></button>
+  <button class="mob-nav" data-go="founders"   style="color:white;background:none;border:none;font-size:30px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;padding:4px 0;"></button>
+  <button class="mob-nav" data-go="activities" style="color:white;background:none;border:none;font-size:30px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;padding:4px 0;"></button>
+  <button class="mob-nav" data-go="gallery"    style="color:white;background:none;border:none;font-size:30px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;padding:4px 0;"></button>
+  <button class="mob-nav" data-go="contact"    style="color:white;background:none;border:none;font-size:30px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;padding:4px 0;"></button>
+</div>
 
 <main id="app"></main>
 
@@ -412,13 +430,13 @@ function mission(d) {
       <h1 style="font-family:'Lora',serif;font-size:clamp(44px,7vw,88px);font-weight:700;color:white;line-height:1.05;letter-spacing:-0.02em;max-width:700px;">${esc(d.missionPageHero)}</h1>
     </div>
   </div>
-  <div class="pad" style="max-width:1100px;margin:0 auto;padding:80px 56px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+  <div id="mission-origin-grid" class="pad" style="max-width:1100px;margin:0 auto;padding:80px 56px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
     <div>
       <h2 style="font-family:'Lora',serif;font-size:clamp(32px,4vw,52px);font-weight:700;line-height:1.12;letter-spacing:-0.02em;margin-bottom:28px;">${esc(d.missionOriginTitle)}</h2>
       <p style="font-size:20px;line-height:1.78;color:oklch(36% 0.04 145);margin-bottom:20px;">${esc(d.missionOriginText1)}</p>
       <p style="font-size:20px;line-height:1.78;color:oklch(36% 0.04 145);">${esc(d.missionOriginText2)}</p>
     </div>
-    <div style="border-radius:24px;overflow:hidden;height:420px;box-shadow:0 24px 64px rgba(0,0,0,0.12);">
+    <div class="mission-origin-img" style="border-radius:24px;overflow:hidden;height:420px;box-shadow:0 24px 64px rgba(0,0,0,0.12);">
       <img src="${imgs.children}" alt="Trẻ em vùng cao" style="width:100%;height:100%;object-fit:cover;display:block;">
     </div>
   </div>
@@ -514,7 +532,7 @@ function foundersPage(d) {
 function contactPage(d) {
   return `<div style="padding-top:72px;min-height:calc(100vh - 72px);display:grid;grid-template-rows:1fr auto;animation:pageFade 0.4s ease both;">
   <div class="contact-split" style="display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 120px);">
-    <div style="position:relative;overflow:hidden;min-height:320px;">
+    <div id="contact-left-panel" style="position:relative;overflow:hidden;min-height:320px;">
       <img src="${imgs.community}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;">
       <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(15,42,18,0.55),rgba(15,42,18,0.88));"></div>
       <div class="pad" style="position:relative;z-index:2;padding:72px 64px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;">
@@ -610,14 +628,19 @@ function render() {
   document.querySelector('.t-navGallery').textContent = d.navGallery;
   document.querySelector('.t-navContact').textContent = d.navContact;
   document.getElementById('lang-btn').textContent = d.langLabel;
+  const navLabels = [d.navMission, d.navFounders, d.navActivities, d.navGallery, d.navContact];
+  document.querySelectorAll('.mob-nav').forEach((btn, i) => { btn.textContent = navLabels[i]; });
   document.getElementById('app').innerHTML = (PAGES[state.page] || home)(d);
 }
 
 function goTo(p) { state.page = p; state.formSent = false; window.scrollTo(0, 0); render(); }
 
+const mobMenu = document.getElementById('mob-menu');
 document.addEventListener('click', (e) => {
   const goBtn = e.target.closest('[data-go]');
-  if (goBtn) { goTo(goBtn.getAttribute('data-go')); return; }
+  if (goBtn) { mobMenu.style.display = 'none'; goTo(goBtn.getAttribute('data-go')); return; }
+  if (e.target.closest('#hamburger')) { mobMenu.style.display = 'flex'; return; }
+  if (e.target.closest('#mob-close')) { mobMenu.style.display = 'none'; return; }
   if (e.target.closest('#lang-btn')) { state.lang = state.lang === 'vi' ? 'en' : 'vi'; render(); }
 });
 
