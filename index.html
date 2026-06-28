@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Life is Great — Dự án thiện nguyện cộng đồng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,400;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: oklch(98.5% 0.01 80); color: oklch(18% 0.04 145); overflow-x: hidden; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pageFade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 1024px) {
+  #activities-grid, #founders-grid { grid-template-columns: repeat(3,1fr) !important; }
+  #stats-grid { grid-template-columns: repeat(2,1fr) !important; }
+  #mission-grid, #contact-grid { grid-template-columns: 1fr !important; }
+  #gallery-grid { grid-template-columns: 1fr 1fr !important; grid-template-rows: auto !important; }
+  #gallery-main { grid-row: auto !important; }
+  .founder-row, .founder-row-r, .act-row, .act-row-r { flex-direction: column !important; }
+  .founder-photo { width: 100% !important; height: 360px !important; }
+  .act-img { width: 100% !important; }
+  .contact-split { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 640px) {
+  #activities-grid, #founders-grid { grid-template-columns: repeat(2,1fr) !important; }
+  #nav-links { display: none !important; }
+  nav { padding: 0 24px !important; }
+  section, .pad { padding-left: 24px !important; padding-right: 24px !important; }
+}
+</style>
+</head>
+<body>
+<nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(20,46,23,0.97);backdrop-filter:blur(12px);height:96px;display:flex;align-items:center;justify-content:space-between;padding:0 56px;">
+  <button data-go="home" style="font-family:'Lora',serif;font-size:34px;font-weight:700;color:white;letter-spacing:-0.02em;background:none;border:none;cursor:pointer;">Life is <em style="color:oklch(75% 0.13 80);font-style:italic;">Great</em></button>
+  <div id="nav-links" style="display:flex;align-items:center;gap:40px;">
+    <button data-go="mission" class="t-navMission" style="color:rgba(255,255,255,0.88);background:none;border:none;cursor:pointer;font-size:22px;font-weight:700;font-family:inherit;"></button>
+    <button data-go="activities" class="t-navActivities" style="color:rgba(255,255,255,0.88);background:none;border:none;cursor:pointer;font-size:22px;font-weight:700;font-family:inherit;"></button>
+    <button data-go="founders" class="t-navFounders" style="color:rgba(255,255,255,0.88);background:none;border:none;cursor:pointer;font-size:22px;font-weight:700;font-family:inherit;"></button>
+    <button data-go="contact" class="t-navContact" style="color:rgba(255,255,255,0.88);background:none;border:none;cursor:pointer;font-size:22px;font-weight:700;font-family:inherit;"></button>
+    <button id="lang-btn" style="background:oklch(75% 0.13 80);color:oklch(22% 0.08 80);border:none;padding:10px 24px;border-radius:100px;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:0.06em;"></button>
+  </div>
+</nav>
+
+<main id="app"></main>
+
+<script>
+const U = (id, w) => `https://images.unsplash.com/${id}?w=${w || 1200}&q=80&auto=format&fit=crop`;
+const imgs = {
+  hero: U('photo-1528360983277-13d401cdc186', 1600),
+  terraces: U('photo-1528360983277-13d401cdc186', 1600),
+  children: U('photo-1488521787991-ed7bbaae773c'),
+  classroom: U('photo-1503676260728-1c00da094a0b'),
+  giving: U('photo-1469571486292-0ba58a3f068b'),
+  books: U('photo-1497486751825-1233686d5d80'),
+  community: U('photo-1531206715517-5c0ba140b2b8'),
+  medical: U('photo-1576091160399-112ba8d25d1d'),
+  village: U('photo-1583417319070-4a69db38a482'),
+  coding: U('photo-1516321318423-f06f85e504b3'),
+};
+const enc = (f) => 'uploads/' + f;
+const esc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+const state = { lang: 'vi', page: 'home', formSent: false };
+
+function data() {
+  const vi = state.lang === 'vi';
+
+  const founders = [
+    { nickname: 'Liny', fullName: 'Nguyễn Trần Phương Linh', role: vi ? 'Trưởng dự án · Y tế & Định hướng' : 'Project Lead · Healthcare & Direction', bio: vi ? 'Đam mê y học và cộng đồng. Nhắm đến NUS Medicine Singapore — và trái tim của những đứa trẻ vùng cao.' : 'Passionate about medicine & community. Targeting NUS Medicine Singapore.', photo: enc('photos-1782578667966.jpg'), color: 'oklch(42% 0.14 145)', badge: vi ? '🎯 Mục tiêu: NUS Medicine' : '🎯 Goal: NUS Medicine', reverse: false },
+    { nickname: 'Kìu', fullName: '', role: vi ? 'Co-founder · Đối ngoại' : 'Co-founder · External Relations', bio: vi ? 'Kết nối dự án với cộng đồng, tổ chức và nhà tài trợ. Xây dựng cầu nối từ trái tim.' : 'Bridges the project with communities, organizations, and sponsors.', photo: enc('Kiu.jpg'), color: 'oklch(48% 0.15 200)', badge: '', reverse: true },
+    { nickname: 'Kem', fullName: '', role: vi ? 'Co-founder · Vận hành' : 'Co-founder · Operations', bio: vi ? 'Đảm bảo mọi chuyến đi được tổ chức chặt chẽ và mang lại hiệu quả cao nhất cho các em nhỏ.' : 'Ensures every expedition is well-organized and maximally impactful.', photo: enc('Kem-f184f235.jpg'), color: 'oklch(55% 0.13 30)', badge: '', reverse: false },
+    { nickname: 'Susi', fullName: 'Nguyễn Đức Quang', role: vi ? 'Co-founder · Hoạt động & Vui chơi' : 'Co-founder · Activities & Recreation', bio: vi ? 'Thiết kế hoạt động vui chơi và giáo dục sáng tạo, phù hợp với trẻ em vùng cao.' : 'Designs fun and creative educational activities for highland children.', photo: enc('Susi.jpg'), color: 'oklch(48% 0.14 260)', badge: '', reverse: true },
+    { nickname: 'Gạo', fullName: '', role: vi ? 'Co-founder · Truyền thông & Gây quỹ' : 'Co-founder · Comms & Fundraising', bio: vi ? 'Kể câu chuyện dự án, huy động nguồn lực và lan tỏa tinh thần thiện nguyện rộng khắp.' : 'Tells the project story and spreads the spirit of giving far and wide.', photo: enc('gao.jpg'), color: 'oklch(62% 0.12 80)', badge: '', reverse: false },
+  ];
+
+  const activities = [
+    { icon: '📚', title: vi ? 'Sách vở & Học cụ' : 'Books & Stationery', desc: vi ? 'Tặng sách giáo khoa, vở, bút và đồ dùng học tập cho các em vùng cao.' : 'Donating textbooks, notebooks, and school supplies to highland children.', img: imgs.books },
+    { icon: '🏥', title: vi ? 'Y tế cộng đồng' : 'Community Healthcare', desc: vi ? 'Khám bệnh đơn giản, tư vấn sức khoẻ và hướng dẫn vệ sinh cá nhân.' : 'Basic health check-ups, counseling, and hygiene guidance.', img: imgs.medical },
+    { icon: '🌏', title: vi ? 'Tiếng Anh' : 'English Classes', desc: vi ? 'Dạy tiếng Anh cơ bản, mở cánh cửa thế giới cho các em nhỏ.' : 'Teaching basic English to open a window to the wider world.', img: imgs.classroom },
+    { icon: '💻', title: vi ? 'Lập trình & Công nghệ' : 'Coding & Technology', desc: vi ? 'Giới thiệu tư duy lập trình, nuôi đam mê công nghệ từ sớm.' : 'Introducing coding and sparking an early passion for technology.', img: imgs.coding },
+    { icon: '🎁', title: vi ? 'Nhu yếu phẩm' : 'Daily Essentials', desc: vi ? 'Quần áo, đồ dùng sinh hoạt và nhu yếu phẩm cho các gia đình.' : 'Clothing, household items, and daily necessities for families.', img: imgs.giving },
+  ];
+
+  const activitiesDetailed = [
+    { icon: '📚', title: vi ? 'Sách vở & Học cụ' : 'Books & Stationery', img: imgs.books, longDesc: vi ? 'Mỗi cuốn sách là một cánh cửa. Chúng mình tặng sách giáo khoa, vở viết, bút chì và đồ dùng học tập đầy đủ cho học sinh ở những trường thiếu thốn nhất tại vùng cao. Không có đủ sách, trẻ em không thể học tốt — và chúng mình thay đổi điều đó.' : 'Every book is a door to a new world. We donate textbooks, notebooks, pencils and complete school supplies to students at the most under-resourced highland schools.', impact: vi ? '✓ Đã tặng hàng trăm bộ học cụ tại Hà Giang 2025' : '✓ Donated hundreds of school kits in Hà Giang 2025', reverse: false },
+    { icon: '🏥', title: vi ? 'Y tế cộng đồng' : 'Community Healthcare', img: imgs.medical, longDesc: vi ? 'Nhiều trẻ em vùng cao chưa từng được khám bác sĩ. Với sự hướng dẫn của Liny, chúng mình tổ chức buổi khám sức khoẻ cơ bản, tư vấn dinh dưỡng và hướng dẫn vệ sinh cá nhân — những điều tưởng đơn giản nhưng có thể thay đổi cả một cuộc đời.' : 'Many highland children have never seen a doctor. Led by Liny, we organize basic health check-ups, nutrition counseling, and hygiene guidance — simple things that can change a life.', impact: vi ? '✓ Khám cho hàng chục em tại Hà Giang 2025' : '✓ Examined dozens of children in Hà Giang 2025', reverse: true },
+    { icon: '🌏', title: vi ? 'Tiếng Anh' : 'English Education', img: imgs.classroom, longDesc: vi ? 'Tiếng Anh là chìa khoá ra thế giới. Chúng mình dạy từ vựng cơ bản, bài hát và trò chơi ngôn ngữ — biến mỗi buổi học thành trải nghiệm vui và đáng nhớ. Khi một đứa trẻ biết nói "Hello, my name is...", ánh mắt em sáng lên theo cách không gì diễn tả được.' : 'English is the key to the world. We teach basic vocabulary, songs, language games — making each lesson a fun and memorable experience. When a child says their first English sentence, their eyes light up.', impact: vi ? '✓ Dạy tiếng Anh cho 30+ học sinh tại Hà Giang' : '✓ Taught English to 30+ students in Hà Giang', reverse: false },
+    { icon: '💻', title: vi ? 'Lập trình & Công nghệ' : 'Coding & Technology', img: imgs.coding, longDesc: vi ? 'Công nghệ là tương lai — và trẻ em vùng cao cũng xứng đáng được tiếp cận nó. Chúng mình giới thiệu tư duy lập trình qua các bài tập trực quan. Mục tiêu không phải tạo ra lập trình viên, mà là nuôi dưỡng cách tư duy sáng tạo và logic từ nhỏ.' : 'Technology is the future — and highland children deserve access to it too. We introduce computational thinking through visual exercises. The goal is to nurture creative and logical thinking from a young age.', impact: vi ? '✓ Workshop lập trình đầu tiên tại Hà Giang 2025' : '✓ First coding workshop in Hà Giang 2025', reverse: true },
+    { icon: '🎁', title: vi ? 'Nhu yếu phẩm' : 'Daily Essentials', img: imgs.giving, longDesc: vi ? 'Đôi khi, điều trẻ em cần nhất không phải là sách — mà là một bộ quần áo ấm. Chúng mình quyên góp và phân phát quần áo, chăn mền, đồ dùng sinh hoạt thiết yếu. Vì khi cái bụng no và người ấm, tâm trí mới có thể học được.' : 'Sometimes, what children need most is not a book — but a warm set of clothes. We collect and distribute clothing, blankets, and daily essentials. Because when the body is warm and fed, the mind can learn.', impact: vi ? '✓ Tặng đồ dùng cho 50+ gia đình tại Hà Giang' : '✓ Donated goods to 50+ families in Hà Giang', reverse: false },
+  ];
+
+  const journey = [
+    { year: '2025', location: 'Hà Giang', title: vi ? 'Chuyến đi đầu tiên' : 'First Expedition', desc: vi ? 'Chuyến mở đường đến Hà Giang — tặng học cụ, khám bệnh, dạy tiếng Anh. Khoảnh khắc Life is Great chính thức ra đời.' : 'Our founding trip to Hà Giang — donating supplies, health check-ups, teaching English. The moment Life is Great was born.', status: vi ? '✓ Đã thực hiện' : '✓ Completed', done: true },
+    { year: '2026', location: vi ? 'Miền Trung' : 'Central Vietnam', title: vi ? 'Mở rộng hành trình' : 'Expanding Our Reach', desc: vi ? 'Mang chương trình đến các tỉnh miền Trung, tập trung giáo dục tiếng Anh và lập trình.' : 'Bringing programs to Central Vietnam, focused on English and coding education.', status: vi ? 'Sắp tới' : 'Upcoming', done: false },
+    { year: '2027', location: vi ? 'Toàn quốc' : 'Nationwide', title: vi ? 'Phát triển bền vững' : 'Sustainable Growth', desc: vi ? 'Xây dựng mô hình dài hạn, kết nối thêm tình nguyện viên và nhà tài trợ toàn quốc.' : 'Building a sustainable long-term volunteer model, connecting more volunteers and donors nationwide.', status: vi ? 'Kế hoạch' : 'Planned', done: false },
+  ];
+
+  return {
+    vi, imgs, founders, activities, activitiesDetailed, journey,
+    langLabel: vi ? 'EN' : 'VI',
+    navMission: vi ? 'Sứ mệnh' : 'Mission', navActivities: vi ? 'Hoạt động' : 'Activities', navFounders: 'Founders', navContact: vi ? 'Liên hệ' : 'Contact',
+    heroEyebrow: vi ? 'Dự án thiện nguyện học sinh · 2025–2027' : 'Student Volunteer Project · 2025–2027',
+    heroTagline: vi ? 'Tri thức là ánh sáng. Chúng mình mang nó đến những trẻ em vùng cao Việt Nam cần nhất.' : "Knowledge is light. We bring it to the children of Vietnam's highlands who need it most.",
+    heroCTA1: vi ? 'Khám phá dự án' : 'Explore the Project', heroCTA2: vi ? 'Gặp gỡ founders' : 'Meet the Founders',
+    missionEyebrow: vi ? 'Về chúng mình' : 'About Us',
+    missionTitle: vi ? 'Năm học sinh, một niềm tin chung' : 'Five Students, One Shared Belief',
+    missionText: vi ? 'Life is Great là dự án thiện nguyện do 5 học sinh sáng lập, hướng đến trẻ em vùng sâu vùng xa Việt Nam. Chúng mình tin rằng mọi đứa trẻ đều xứng đáng được học — bất kể sinh ra ở đâu.' : "Life is Great is a student-led volunteer project dedicated to children in Vietnam's remote highlands. We believe every child deserves to learn — regardless of where they were born.",
+    missionText2: vi ? 'Không có quỹ lớn, không có tổ chức đứng sau — chỉ có trái tim, đôi tay và mong muốn thay đổi.' : 'No big fund, no backing organization — just heart, hands, and the will to make a difference.',
+    missionCTA: vi ? 'Đọc thêm về sứ mệnh' : 'Read Our Mission',
+    impactTitle: vi ? 'Tác động của chúng mình' : 'Our Impact',
+    stat1Num: '50+', stat1Label: vi ? 'Trẻ em được giúp đỡ' : 'Children Reached',
+    stat2Num: '1', stat2Label: vi ? 'Chuyến đi thực tế' : 'Field Expedition',
+    stat3Num: '5', stat3Label: vi ? 'Founders tình nguyện' : 'Volunteer Founders',
+    stat4Num: '3', stat4Label: vi ? 'Năm cam kết (2025–27)' : 'Years Committed',
+    activitiesEyebrow: vi ? 'Những gì chúng mình làm' : 'What We Do', activitiesTitle: vi ? 'Hoạt động của dự án' : 'Our Activities', activitiesCTA: vi ? 'Xem chi tiết' : 'See All Activities',
+    journeyEyebrow: vi ? 'Hành trình' : 'Our Journey', journeyTitle: vi ? 'Từ 2025 đến 2027' : 'From 2025 to 2027',
+    foundersEyebrow: vi ? 'Đội ngũ sáng lập' : 'The Founding Team', foundersTitle: vi ? 'Gặp gỡ 5 founders' : 'Meet the 5 Founders', foundersCTA: vi ? 'Câu chuyện của từng người' : "Each Founder's Story",
+    galleryEyebrow: vi ? 'Thư viện ảnh' : 'Photo Gallery', galleryTitle: vi ? 'Khoảnh khắc từ Hà Giang 2025' : 'Moments from Hà Giang 2025', gallerySub: vi ? 'Chuyến đi đầu tiên — mùa hè 2025' : 'First expedition — summer 2025',
+    contactEyebrow: vi ? 'Kết nối với chúng mình' : 'Connect with Us', contactTitle: vi ? 'Cùng thay đổi thế giới' : 'Change Lives with Us', contactSub: vi ? 'Dù là tình nguyện viên, nhà tài trợ, hay đơn giản là muốn cổ vũ — hãy liên hệ!' : 'Whether a volunteer, sponsor, or simply a supporter — reach out!',
+    contactEmail: 'lifeisgreat.vn@gmail.com',
+    contactNameLabel: vi ? 'Họ và tên' : 'Full Name', contactEmailLabel: 'Email', contactMsgLabel: vi ? 'Lời nhắn' : 'Message', contactSend: vi ? 'Gửi lời nhắn' : 'Send Message',
+    formSuccessMsg: vi ? '✓ Cảm ơn! Chúng mình sẽ liên hệ sớm.' : '✓ Thank you! We will be in touch.',
+    contactVolunteer: vi ? 'Tham gia tình nguyện' : 'Volunteer', contactSponsor: vi ? 'Nhà tài trợ' : 'Sponsor', contactFollow: vi ? 'Theo dõi' : 'Follow Us',
+    footerTagline: vi ? '"Tri thức là ánh sáng."' : '"Knowledge is light."', footerCopy: '© 2025 Life is Great · Made with ❤️ by 5 students from Vietnam',
+    missionPageEyebrow: vi ? 'Sứ mệnh của chúng mình' : 'Our Mission',
+    missionPageHero: vi ? 'Tại sao chúng mình ở đây?' : 'Why are we here?',
+    missionOriginTitle: vi ? 'Từ một câu hỏi giản dị' : 'It started with a simple question',
+    missionOriginText1: vi ? 'Mùa hè 2025, chúng mình — 5 học sinh từ Hà Nội — lần đầu đặt chân lên Hà Giang. Nhìn thấy những đứa trẻ đi chân đất đến trường, học trong căn phòng không có đủ sách, chúng mình đặt ra câu hỏi: Chúng mình có thể làm gì?' : 'In the summer of 2025, we — 5 students from Hanoi — first set foot in Hà Giang. Seeing children walking barefoot to school, studying in rooms without enough books, we asked: What can we do?',
+    missionOriginText2: vi ? 'Câu trả lời không phải là tiền hay quyền lực. Chúng mình có tri thức, năng lượng và trái tim. Và đó là tất cả những gì cần thiết để bắt đầu.' : "The answer wasn't money or power. We had knowledge, energy and heart. And that was all we needed to begin.",
+    valuesTitle: vi ? 'Ba giá trị cốt lõi' : 'Three Core Values',
+    val1Title: vi ? 'Tri thức' : 'Knowledge', val1Text: vi ? 'Giáo dục là công cụ mạnh nhất để thay đổi số phận. Mỗi cuốn sách, mỗi bài học là một cơ hội mới.' : "Education is the most powerful tool for changing one's destiny. Every book, every lesson is a new opportunity.",
+    val2Title: vi ? 'Yêu thương' : 'Love', val2Text: vi ? 'Không phải từ bi từ xa. Chúng mình đến tận nơi, nhìn thẳng vào mắt các em và học cùng nhau.' : 'Not compassion from afar. We go in person, look the children in the eyes, and learn together.',
+    val3Title: vi ? 'Hành động' : 'Action', val3Text: vi ? 'Ước mơ không đủ. Chúng mình đặt mục tiêu, lên kế hoạch và thực sự lên đường — dù còn trẻ.' : "Dreams aren't enough. We set goals, make plans, and actually go — even though we are still young.",
+    missionQuote: vi ? '"Khi một đứa trẻ học được điều gì đó, không chỉ cuộc đời em thay đổi — cả thế hệ sau của em cũng thay đổi theo."' : '"When a child learns something, it\'s not just their life that changes — the next generation changes with them."',
+    missionQuoteAuthor: vi ? 'Liny, Trưởng dự án Life is Great' : 'Liny, Project Lead, Life is Great',
+    missionPageCTA: vi ? 'Xem hoạt động của chúng mình' : 'See Our Activities',
+    activitiesPageEyebrow: vi ? 'Hoạt động' : 'Activities', activitiesPageTitle: vi ? 'Những gì chúng mình làm — và tại sao điều đó quan trọng' : 'What we do — and why it matters',
+    activitiesJoinTitle: vi ? 'Bạn cũng có thể tạo ra sự thay đổi' : 'You too can make a difference',
+    activitiesJoinText: vi ? 'Tham gia cùng chúng mình trong chuyến đi tiếp theo, hoặc hỗ trợ từ xa. Mỗi đóng góp — dù nhỏ — đều quan trọng.' : 'Join us on the next expedition, or support from afar. Every contribution — however small — matters.',
+    activitiesJoinCTA: vi ? 'Liên hệ ngay' : 'Get in Touch',
+    foundersPageEyebrow: vi ? 'Đội ngũ sáng lập' : 'The Founding Team',
+    foundersPageTitle: vi ? 'Chúng mình không hoàn hảo. Nhưng chúng mình thật sự quan tâm.' : 'We are not perfect. But we genuinely care.',
+    teamQuote: vi ? '"Life is Great không chỉ là tên dự án. Đó là điều chúng mình muốn các em tin vào — rằng dù sinh ra ở đâu, cuộc đời vẫn thật sự tuyệt vời."' : '"Life is Great is not just a project name. It\'s what we want the children to believe — that no matter where you\'re born, life is truly great."',
+    foundersContactCTA: vi ? 'Liên hệ với đội ngũ' : 'Contact the Team',
+    contactPageEyebrow: vi ? 'Kết nối' : 'Connect', contactPageTitle: vi ? 'Cùng nhau, chúng ta làm được nhiều hơn.' : 'Together, we can do so much more.',
+    contactPageSub: vi ? 'Dù bạn muốn tình nguyện, tài trợ, hay chỉ chia sẻ câu chuyện của chúng mình — chúng mình rất vui được nghe từ bạn.' : "Whether you want to volunteer, sponsor, or simply share our story — we'd love to hear from you.",
+    contactFormTitle: vi ? 'Gửi lời nhắn cho chúng mình' : 'Send Us a Message',
+    contactRoleLabel: vi ? 'Bạn muốn tham gia như thế nào?' : 'How would you like to help?',
+    roleOpt1: vi ? 'Tình nguyện viên' : 'Volunteer', roleOpt2: vi ? 'Nhà tài trợ / Quyên góp' : 'Sponsor / Donor', roleOpt3: vi ? 'Truyền thông & Chia sẻ' : 'Media & Sharing', roleOpt4: vi ? 'Chỉ muốn cổ vũ!' : 'Just cheering you on!',
+    contactWaysTitle: vi ? 'Các cách hợp tác' : 'Ways to Help',
+  };
+}
+
+/* ───────── Reusable bits ───────── */
+function footer(d, small) {
+  return `<footer style="background:oklch(16% 0.07 145);padding:${small ? '48px 56px' : '56px'};text-align:center;" class="pad">
+    <button data-go="home" style="font-family:'Lora',serif;font-size:${small ? '26px' : '28px'};font-weight:700;color:white;background:none;border:none;cursor:pointer;display:block;margin:0 auto 12px;">Life is <em style="color:oklch(75% 0.13 80);font-style:italic;">Great</em></button>
+    ${small ? '' : `<div style="color:rgba(255,255,255,0.4);font-size:17px;margin-bottom:28px;font-style:italic;font-family:'Lora',serif;">${esc(d.footerTagline)}</div>
+    <div style="width:40px;height:1px;background:rgba(255,255,255,0.12);margin:0 auto 24px;"></div>`}
+    <div style="color:rgba(255,255,255,0.28);font-size:14px;${small ? 'margin-top:16px;' : ''}">${esc(d.footerCopy)}</div>
+  </footer>`;
+}
+
+function formBlock(d) {
+  const sent = state.formSent ? `<div style="background:oklch(92% 0.06 145);color:oklch(26% 0.12 145);padding:18px 22px;border-radius:14px;font-weight:600;font-size:17px;text-align:center;">${esc(d.formSuccessMsg)}</div>` : '';
+  return `<form data-form style="display:flex;flex-direction:column;gap:20px;">
+    ${sent}
+    <div>
+      <label style="display:block;font-size:15px;font-weight:600;color:oklch(28% 0.06 145);margin-bottom:9px;">${esc(d.contactNameLabel)}</label>
+      <input type="text" required style="width:100%;border:1.5px solid oklch(88% 0.04 145);border-radius:12px;padding:14px 18px;font-size:17px;font-family:inherit;outline:none;background:white;">
+    </div>
+    <div>
+      <label style="display:block;font-size:15px;font-weight:600;color:oklch(28% 0.06 145);margin-bottom:9px;">${esc(d.contactEmailLabel)}</label>
+      <input type="email" required style="width:100%;border:1.5px solid oklch(88% 0.04 145);border-radius:12px;padding:14px 18px;font-size:17px;font-family:inherit;outline:none;background:white;">
+    </div>
+    <div>
+      <label style="display:block;font-size:15px;font-weight:600;color:oklch(28% 0.06 145);margin-bottom:9px;">${esc(d.contactMsgLabel)}</label>
+      <textarea style="width:100%;border:1.5px solid oklch(88% 0.04 145);border-radius:12px;padding:14px 18px;font-size:17px;font-family:inherit;outline:none;height:130px;resize:vertical;background:white;"></textarea>
+    </div>
+    <button type="submit" style="background:oklch(42% 0.14 145);color:white;border:none;padding:16px 36px;border-radius:100px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;">${esc(d.contactSend)}</button>
+  </form>`;
+}
+
+/* ───────── Pages ───────── */
+function home(d) {
+  const stats = [[d.stat1Num,d.stat1Label],[d.stat2Num,d.stat2Label],[d.stat3Num,d.stat3Label],[d.stat4Num,d.stat4Label]];
+  return `
+<section id="hero" style="position:relative;min-height:100vh;background:linear-gradient(155deg,oklch(24% 0.11 145) 0%,oklch(33% 0.13 148) 55%,oklch(28% 0.09 162) 100%);display:flex;align-items:center;overflow:hidden;padding:100px 56px 80px;" class="pad">
+  <div style="position:absolute;inset:0;background-image:url(${imgs.hero});background-size:cover;background-position:center;opacity:0.22;"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(155deg,rgba(15,40,18,0.88) 0%,rgba(15,40,18,0.6) 60%,rgba(15,40,18,0.8) 100%);"></div>
+  <div style="position:relative;z-index:2;max-width:1100px;margin:0 auto;width:100%;animation:fadeUp 0.9s ease both;">
+    <div style="display:inline-block;background:oklch(75% 0.13 80);color:oklch(22% 0.08 80);padding:7px 22px;border-radius:100px;font-size:14px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:32px;">${esc(d.heroEyebrow)}</div>
+    <h1 style="font-family:'Lora',Georgia,serif;font-size:clamp(64px,10vw,128px);font-weight:700;color:white;line-height:0.95;margin-bottom:32px;letter-spacing:-0.03em;">Life is<br><em style="color:oklch(75% 0.13 80);font-style:italic;">Great</em></h1>
+    <p style="font-size:clamp(18px,2.5vw,24px);color:rgba(255,255,255,0.82);max-width:580px;line-height:1.72;margin-bottom:48px;">${esc(d.heroTagline)}</p>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+      <button data-go="mission" style="background:oklch(75% 0.13 80);color:oklch(22% 0.08 80);padding:16px 40px;border-radius:100px;font-weight:700;font-size:17px;border:none;cursor:pointer;font-family:inherit;">${esc(d.heroCTA1)}</button>
+      <button data-go="founders" style="border:2px solid rgba(255,255,255,0.3);color:white;padding:16px 40px;border-radius:100px;font-weight:600;font-size:17px;background:none;cursor:pointer;font-family:inherit;">${esc(d.heroCTA2)}</button>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:36px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.3);font-size:24px;">↓</div>
+</section>
+
+<section id="mission">
+  <div id="mission-grid" class="pad" style="max-width:1200px;margin:0 auto;padding:100px 56px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+    <div>
+      <div style="color:oklch(42% 0.14 145);font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:20px;">${esc(d.missionEyebrow)}</div>
+      <h2 style="font-family:'Lora',serif;font-size:clamp(36px,5vw,60px);font-weight:700;line-height:1.1;letter-spacing:-0.02em;margin-bottom:28px;">${esc(d.missionTitle)}</h2>
+      <p style="font-size:20px;line-height:1.78;color:oklch(36% 0.04 145);margin-bottom:20px;">${esc(d.missionText)}</p>
+      <p style="font-size:20px;line-height:1.78;color:oklch(36% 0.04 145);margin-bottom:40px;">${esc(d.missionText2)}</p>
+      <button data-go="mission" style="display:inline-flex;align-items:center;gap:8px;background:oklch(42% 0.14 145);color:white;padding:15px 30px;border-radius:100px;font-weight:600;font-size:17px;border:none;cursor:pointer;font-family:inherit;">${esc(d.missionCTA)} →</button>
+    </div>
+    <div style="position:relative;">
+      <div style="position:absolute;inset:-24px;background:oklch(92% 0.06 145);border-radius:28px;transform:rotate(3deg);z-index:0;"></div>
+      <img src="${enc('photos-1782578667966.jpg')}" alt="Liny — Founder" style="position:relative;z-index:1;width:100%;border-radius:22px;object-fit:cover;aspect-ratio:3/4;box-shadow:0 24px 64px rgba(0,0,0,0.12);">
+    </div>
+  </div>
+</section>
+
+<section style="background:oklch(27% 0.11 145);padding:80px 56px;" class="pad">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div style="text-align:center;color:rgba(255,255,255,0.5);font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:48px;">${esc(d.impactTitle)}</div>
+    <div id="stats-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:28px;">
+      ${stats.map(([n,l]) => `<div style="text-align:center;padding:40px 20px;background:rgba(255,255,255,0.05);border-radius:20px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="font-family:'Lora',serif;font-size:80px;font-weight:700;color:oklch(75% 0.13 80);line-height:1;">${esc(n)}</div>
+        <div style="color:rgba(255,255,255,0.65);font-size:17px;margin-top:14px;font-weight:500;line-height:1.4;">${esc(l)}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<section id="activities" style="padding:100px 56px;background:oklch(97.5% 0.01 80);" class="pad">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:64px;">
+      <div style="color:oklch(42% 0.14 145);font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:14px;">${esc(d.activitiesEyebrow)}</div>
+      <h2 style="font-family:'Lora',serif;font-size:clamp(36px,5vw,60px);font-weight:700;letter-spacing:-0.02em;">${esc(d.activitiesTitle)}</h2>
+    </div>
+    <div id="activities-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:20px;">
+      ${d.activities.map(item => `<div style="background:white;border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.06);">
+        <div style="height:160px;overflow:hidden;background:oklch(90% 0.05 145);"><img src="${item.img}" alt="${esc(item.title)}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+        <div style="padding:24px 20px;">
+          <div style="font-size:28px;margin-bottom:12px;line-height:1;">${item.icon}</div>
+          <h3 style="font-size:17px;font-weight:700;margin-bottom:10px;color:oklch(26% 0.10 145);line-height:1.3;">${esc(item.title)}</h3>
+          <p style="font-size:15px;line-height:1.6;color:oklch(46% 0.04 145);">${esc(item.desc)}</p>
+        </div>
+      </div>`).join('')}
+    </div>
+    <div style="text-align:center;margin-top:48px;">
+      <button data-go="activities" style="background:oklch(42% 0.14 145);color:white;padding:15px 36px;border-radius:100px;font-size:17px;font-weight:700;border:none;cursor:pointer;font-family:inherit;">${esc(d.activitiesCTA)} →</button>
+    </div>
+  </div>
+</section>
+
+<section style="padding:100px 56px;background:white;" class="pad">
+  <div style="max-width:900px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:72px;">
+      <div style="color:oklch(42% 0.14 145);font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:14px;">${esc(d.journeyEyebrow)}</div>
+      <h2 style="font-family:'Lora',serif;font-size:clamp(36px,5vw,60px);font-weight:700;letter-spacing:-0.02em;">${esc(d.journeyTitle)}</h2>
+    </div>
+    <div style="position:relative;">
+      <div style="position:absolute;left:68px;top:12px;bottom:12px;width:2px;background:oklch(90% 0.05 145);z-index:0;"></div>
+      ${d.journey.map(item => {
+        const dot = item.done
+          ? 'position:absolute;left:61px;top:8px;width:16px;height:16px;border-radius:50%;background:oklch(42% 0.14 145);border:3px solid oklch(42% 0.14 145);box-shadow:0 0 0 4px white, 0 0 0 6px oklch(88% 0.07 145);z-index:1;'
+          : 'position:absolute;left:61px;top:8px;width:16px;height:16px;border-radius:50%;background:white;border:3px solid oklch(72% 0.08 145);box-shadow:0 0 0 4px white, 0 0 0 6px oklch(92% 0.04 145);z-index:1;';
+        const status = item.done
+          ? 'background:oklch(88% 0.08 145);color:oklch(28% 0.12 145);font-size:14px;font-weight:700;padding:5px 16px;border-radius:100px;display:inline-block;'
+          : 'background:oklch(94% 0.02 80);color:oklch(48% 0.04 145);font-size:14px;font-weight:700;padding:5px 16px;border-radius:100px;display:inline-block;';
+        return `<div style="display:flex;gap:48px;margin-bottom:60px;align-items:flex-start;position:relative;">
+          <div style="flex-shrink:0;width:120px;text-align:right;padding-top:2px;">
+            <div style="font-family:'Lora',serif;font-size:34px;font-weight:700;color:oklch(42% 0.14 145);line-height:1;">${esc(item.year)}</div>
+            <div style="font-size:15px;color:oklch(52% 0.04 145);margin-top:4px;font-weight:500;">${esc(item.location)}</div>
+          </div>
+          <div style="${dot}"></div>
+          <div style="flex:1;padding-left:16px;">
+            <div style="margin-bottom:10px;"><span style="${status}">${esc(item.status)}</span></div>
+            <h3 style="font-size:24px;font-weight:700;margin-bottom:12px;color:oklch(20% 0.08 145);">${esc(item.title)}</h3>
+            <p style="font-size:18px;line-height:1.7;color:oklch(42% 0.04 145);">${esc(item.desc)}</p>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+</section>
+
+<section id="founders" style="padding:100px 56px;background:oklch(96.5% 0.01 80);" class="pad">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:64px;">
+      <div style="color:oklch(42% 0.14 145);font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:14px;">${esc(d.foundersEyebrow)}</div>
+      <h2 style="font-family:'Lora',serif;font-size:clamp(36px,5vw,60px);font-weight:700;letter-spacing:-0.02em;">${esc(d.foundersTitle)}</h2>
+    </div>
+    <div id="founders-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:20px;">
+      ${d.founders.map(item => `<div style="background:white;border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.06);">
+        <div style="width:100%;aspect-ratio:1;background:${item.color};background-image:url(${item.photo});background-size:cover;background-position:center top;"></div>
+        <div style="padding:20px 18px 24px;">
+          <h3 style="font-size:20px;font-weight:800;color:oklch(20% 0.08 145);margin-bottom:4px;">${esc(item.nickname)}</h3>
+          <div style="font-size:12px;color:oklch(52% 0.03 145);margin-bottom:8px;min-height:16px;">${esc(item.fullName)}</div>
+          <div style="font-size:13px;color:oklch(42% 0.14 145);font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;line-height:1.4;">${esc(item.role)}</div>
+          <p style="font-size:15px;line-height:1.6;color:oklch(44% 0.04 145);margin-bottom:14px;">${esc(item.bio)}</p>
+          ${item.badge ? `<div style="background:oklch(92% 0.06 145);color:oklch(28% 0.12 145);font-size:12px;font-weight:600;padding:6px 14px;border-radius:100px;display:inline-block;">${esc(item.badge)}</div>` : ''}
+        </div>
+      </div>`).join('')}
+    </div>
+    <div style="text-align:center;margin-top:48px;">
+      <button data-go="founders" style="background:none;border:2px solid oklch(42% 0.14 145);color:oklch(42% 0.14 145);padding:14px 36px;border-radius:100px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;">${esc(d.foundersCTA)} →</button>
+    </div>
+  </div>
+</section>
+
+<section id="gallery" style="padding:100px 56px;background:oklch(27% 0.11 145);" class="pad">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:56px;">
+      <div style="color:oklch(75% 0.13 80);font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:14px;">${esc(d.galleryEyebrow)}</div>
+      <h2 style="font-family:'Lora',serif;font-size:clamp(36px,5vw,60px);font-weight:700;color:white;letter-spacing:-0.02em;">${esc(d.galleryTitle)}</h2>
+      <p style="color:rgba(255,255,255,0.5);margin-top:14px;font-size:17px;font-style:italic;">${esc(d.gallerySub)}</p>
+    </div>
+    <div id="gallery-grid" style="display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:300px 300px;gap:14px;">
+      <div id="gallery-main" style="grid-row:span 2;border-radius:18px;overflow:hidden;background:oklch(35% 0.10 145);">
+        <img src="${enc('photos-1782578667966.jpg')}" alt="Life is Great — Hà Giang 2025" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;">
+      </div>
+      <div style="border-radius:18px;overflow:hidden;background:oklch(35% 0.10 145);"><img src="${imgs.children}" alt="Ảnh hoạt động" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+      <div style="border-radius:18px;overflow:hidden;background:oklch(35% 0.10 145);"><img src="${imgs.classroom}" alt="Tặng sách vở" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+      <div style="border-radius:18px;overflow:hidden;background:oklch(35% 0.10 145);"><img src="${imgs.giving}" alt="5 founders" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+      <div style="border-radius:18px;overflow:hidden;background:oklch(35% 0.10 145);"><img src="${imgs.village}" alt="Lớp học" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" style="padding:100px 56px;background:white;" class="pad">
+  <div id="contact-grid" style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;">
+    <div>
+      <div style="color:oklch(42% 0.14 145);font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:18px;">${esc(d.contactEyebrow)}</div>
+      <h2 style="font-family:'Lora',serif;font-size:clamp(36px,5vw,60px);font-weight:700;letter-spacing:-0.02em;margin-bottom:20px;">${esc(d.contactTitle)}</h2>
+      <p style="font-size:20px;line-height:1.72;color:oklch(40% 0.04 145);margin-bottom:40px;">${esc(d.contactSub)}</p>
+      <div style="display:flex;align-items:center;gap:14px;padding:20px 22px;background:oklch(96.5% 0.015 80);border-radius:16px;margin-bottom:20px;">
+        <div style="width:48px;height:48px;flex-shrink:0;background:oklch(42% 0.14 145);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:20px;">✉</div>
+        <div>
+          <div style="font-size:12px;color:oklch(50% 0.04 145);font-weight:500;margin-bottom:2px;">Email</div>
+          <div style="font-size:16px;font-weight:700;color:oklch(25% 0.08 145);">${esc(d.contactEmail)}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button data-go="contact" style="flex:1;padding:16px 8px;background:oklch(92% 0.06 145);border-radius:12px;text-align:center;font-size:14px;font-weight:700;color:oklch(30% 0.12 145);cursor:pointer;border:none;font-family:inherit;">${esc(d.contactVolunteer)}</button>
+        <button data-go="contact" style="flex:1;padding:16px 8px;background:oklch(96.5% 0.015 80);border-radius:12px;text-align:center;font-size:14px;font-weight:700;color:oklch(38% 0.04 145);cursor:pointer;border:none;font-family:inherit;">${esc(d.contactSponsor)}</button>
+        <button data-go="contact" style="flex:1;padding:16px 8px;background:oklch(92% 0.06 145);border-radius:12px;text-align:center;font-size:14px;font-weight:700;color:oklch(30% 0.12 145);cursor:pointer;border:none;font-family:inherit;">${esc(d.contactFollow)}</button>
+      </div>
+    </div>
+    ${formBlock(d)}
+  </div>
+</section>
+${footer(d, false)}`;
+}
+
+function mission(d) {
+  return `<div style="padding-top:72px;animation:pageFade 0.4s ease both;">
+  <div style="position:relative;height:72vh;min-height:500px;overflow:hidden;display:flex;align-items:flex-end;">
+    <img src="${imgs.terraces}" alt="Việt Nam" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;">
+    <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(12,34,15,0.95) 0%,rgba(12,34,15,0.4) 60%,rgba(12,34,15,0.2) 100%);"></div>
+    <div class="pad" style="position:relative;z-index:2;padding:0 80px 72px;max-width:1200px;width:100%;">
+      <div style="color:oklch(75% 0.13 80);font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:20px;">${esc(d.missionPageEyebrow)}</div>
+      <h1 style="font-family:'Lora',serif;font-size:clamp(44px,7vw,88px);font-weight:700;color:white;line-height:1.05;letter-spacing:-0.02em;max-width:700px;">${esc(d.missionPageHero)}</h1>
+    </div>
+  </div>
+  <div class="pad" style="max-width:1100px;margin:0 auto;padding:80px 56px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+    <div>
+      <h2 style="font-family:'Lora',serif;font-size:clamp(32px,4vw,52px);font-weight:700;line-height:1.12;letter-spacing:-0.02em;margin-bottom:28px;">${esc(d.missionOriginTitle)}</h2>
+      <p style="font-size:20px;line-height:1.78;color:oklch(36% 0.04 145);margin-bottom:20px;">${esc(d.missionOriginText1)}</p>
+      <p style="font-size:20px;line-height:1.78;color:oklch(36% 0.04 145);">${esc(d.missionOriginText2)}</p>
+    </div>
+    <div style="border-radius:24px;overflow:hidden;height:420px;box-shadow:0 24px 64px rgba(0,0,0,0.12);">
+      <img src="${imgs.children}" alt="Trẻ em vùng cao" style="width:100%;height:100%;object-fit:cover;display:block;">
+    </div>
+  </div>
+  <div style="background:oklch(27% 0.11 145);padding:80px 56px;" class="pad">
+    <div style="max-width:1100px;margin:0 auto;text-align:center;margin-bottom:60px;">
+      <h2 style="font-family:'Lora',serif;font-size:clamp(32px,4vw,52px);font-weight:700;color:white;letter-spacing:-0.02em;">${esc(d.valuesTitle)}</h2>
+    </div>
+    <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:32px;" class="values-grid">
+      ${[['📖',d.val1Title,d.val1Text],['❤️',d.val2Title,d.val2Text],['🌱',d.val3Title,d.val3Text]].map(([ic,t,tx]) => `<div style="background:rgba(255,255,255,0.07);border-radius:24px;padding:52px 36px;text-align:center;border:1px solid rgba(255,255,255,0.1);">
+        <div style="font-size:52px;margin-bottom:20px;">${ic}</div>
+        <h3 style="font-family:'Lora',serif;font-size:28px;font-weight:700;color:oklch(75% 0.13 80);margin-bottom:16px;">${esc(t)}</h3>
+        <p style="font-size:17px;line-height:1.65;color:rgba(255,255,255,0.72);">${esc(tx)}</p>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="pad" style="max-width:800px;margin:0 auto;padding:100px 56px;text-align:center;">
+    <div style="width:60px;height:3px;background:oklch(75% 0.13 80);margin:0 auto 44px;"></div>
+    <blockquote style="font-family:'Lora',serif;font-size:clamp(22px,3vw,34px);font-style:italic;line-height:1.65;color:oklch(26% 0.08 145);margin-bottom:32px;">${esc(d.missionQuote)}</blockquote>
+    <div style="font-size:16px;font-weight:600;color:oklch(42% 0.14 145);">— ${esc(d.missionQuoteAuthor)}</div>
+  </div>
+  <div style="background:oklch(97.5% 0.01 80);padding:64px 56px;text-align:center;" class="pad">
+    <button data-go="activities" style="background:oklch(42% 0.14 145);color:white;padding:18px 48px;border-radius:100px;font-size:18px;font-weight:700;border:none;cursor:pointer;font-family:inherit;">${esc(d.missionPageCTA)} →</button>
+  </div>
+  ${footer(d, true)}
+</div>`;
+}
+
+function activitiesPage(d) {
+  return `<div style="padding-top:72px;animation:pageFade 0.4s ease both;">
+  <div style="background:oklch(97.5% 0.01 80);padding:72px 56px 48px;" class="pad">
+    <div style="max-width:1100px;margin:0 auto;">
+      <div style="color:oklch(42% 0.14 145);font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;">${esc(d.activitiesPageEyebrow)}</div>
+      <h1 style="font-family:'Lora',serif;font-size:clamp(44px,7vw,80px);font-weight:700;letter-spacing:-0.02em;line-height:1.05;max-width:720px;">${esc(d.activitiesPageTitle)}</h1>
+    </div>
+  </div>
+  <div class="pad" style="max-width:1100px;margin:0 auto;padding:64px 56px;display:flex;flex-direction:column;gap:64px;">
+    ${d.activitiesDetailed.map(act => `<div class="${act.reverse ? 'act-row-r' : 'act-row'}" style="display:flex;gap:60px;align-items:center;${act.reverse ? 'flex-direction:row-reverse;' : ''}">
+      <div class="act-img" style="border-radius:24px;overflow:hidden;flex-shrink:0;width:400px;height:320px;box-shadow:0 16px 48px rgba(0,0,0,0.1);background:oklch(90% 0.05 145);">
+        <img src="${act.img}" alt="${esc(act.title)}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;">
+        <div style="font-size:44px;line-height:1;">${act.icon}</div>
+        <h2 style="font-family:'Lora',serif;font-size:clamp(26px,3.5vw,42px);font-weight:700;color:oklch(22% 0.08 145);letter-spacing:-0.02em;line-height:1.1;">${esc(act.title)}</h2>
+        <p style="font-size:19px;line-height:1.75;color:oklch(38% 0.04 145);">${esc(act.longDesc)}</p>
+        <div style="background:oklch(92% 0.06 145);padding:12px 22px;border-radius:100px;display:inline-block;width:fit-content;">
+          <span style="font-size:15px;font-weight:700;color:oklch(30% 0.12 145);">${esc(act.impact)}</span>
+        </div>
+      </div>
+    </div>`).join('')}
+  </div>
+  <div style="background:oklch(27% 0.11 145);padding:80px 56px;text-align:center;" class="pad">
+    <h2 style="font-family:'Lora',serif;font-size:clamp(30px,4vw,52px);font-weight:700;color:white;margin-bottom:24px;">${esc(d.activitiesJoinTitle)}</h2>
+    <p style="font-size:20px;color:rgba(255,255,255,0.72);max-width:560px;margin:0 auto 44px;line-height:1.7;">${esc(d.activitiesJoinText)}</p>
+    <button data-go="contact" style="background:oklch(75% 0.13 80);color:oklch(22% 0.08 80);padding:18px 48px;border-radius:100px;font-size:18px;font-weight:700;border:none;cursor:pointer;font-family:inherit;">${esc(d.activitiesJoinCTA)} →</button>
+  </div>
+  ${footer(d, true)}
+</div>`;
+}
+
+function foundersPage(d) {
+  return `<div style="padding-top:72px;animation:pageFade 0.4s ease both;">
+  <div style="background:oklch(27% 0.11 145);padding:80px 56px 72px;" class="pad">
+    <div style="max-width:1100px;margin:0 auto;">
+      <div style="color:oklch(75% 0.13 80);font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:20px;">${esc(d.foundersPageEyebrow)}</div>
+      <h1 style="font-family:'Lora',serif;font-size:clamp(40px,6vw,80px);font-weight:700;color:white;line-height:1.1;letter-spacing:-0.02em;max-width:700px;">${esc(d.foundersPageTitle)}</h1>
+    </div>
+  </div>
+  <div class="pad" style="max-width:1100px;margin:0 auto;padding:80px 56px;display:flex;flex-direction:column;gap:0;">
+    ${d.founders.map(item => `<div class="${item.reverse ? 'founder-row-r' : 'founder-row'}" style="display:flex;gap:64px;align-items:flex-start;padding-bottom:64px;border-bottom:1px solid oklch(92% 0.04 145);margin-bottom:64px;${item.reverse ? 'flex-direction:row-reverse;' : ''}">
+      <div class="founder-photo" style="width:360px;height:360px;flex-shrink:0;background:${item.color};background-image:url(${item.photo});background-size:cover;background-position:center top;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,0.15);"></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;">
+        <div>
+          <h2 style="font-family:'Lora',serif;font-size:clamp(32px,4.5vw,56px);font-weight:700;color:oklch(18% 0.08 145);letter-spacing:-0.02em;line-height:1.05;">${esc(item.nickname)}</h2>
+          <div style="font-size:17px;color:oklch(52% 0.03 145);margin-top:6px;">${esc(item.fullName)}</div>
+        </div>
+        <div style="display:inline-block;background:oklch(92% 0.06 145);color:oklch(32% 0.12 145);font-size:14px;font-weight:700;padding:9px 22px;border-radius:100px;text-transform:uppercase;letter-spacing:0.05em;width:fit-content;">${esc(item.role)}</div>
+        <p style="font-size:20px;line-height:1.75;color:oklch(38% 0.04 145);max-width:480px;">${esc(item.bio)}</p>
+        ${item.badge ? `<div style="background:oklch(88% 0.08 145);color:oklch(24% 0.12 145);font-size:14px;font-weight:700;padding:9px 22px;border-radius:100px;display:inline-block;width:fit-content;">${esc(item.badge)}</div>` : ''}
+      </div>
+    </div>`).join('')}
+  </div>
+  <div style="background:oklch(96.5% 0.01 80);padding:80px 56px;text-align:center;" class="pad">
+    <div style="max-width:720px;margin:0 auto;">
+      <div style="width:60px;height:3px;background:oklch(42% 0.14 145);margin:0 auto 44px;"></div>
+      <blockquote style="font-family:'Lora',serif;font-size:clamp(22px,3vw,34px);font-style:italic;line-height:1.65;color:oklch(26% 0.08 145);margin-bottom:44px;">${esc(d.teamQuote)}</blockquote>
+      <button data-go="contact" style="background:oklch(42% 0.14 145);color:white;padding:18px 48px;border-radius:100px;font-size:18px;font-weight:700;border:none;cursor:pointer;font-family:inherit;">${esc(d.foundersContactCTA)} →</button>
+    </div>
+  </div>
+  ${footer(d, true)}
+</div>`;
+}
+
+function contactPage(d) {
+  return `<div style="padding-top:72px;min-height:calc(100vh - 72px);display:grid;grid-template-rows:1fr auto;animation:pageFade 0.4s ease both;">
+  <div class="contact-split" style="display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 120px);">
+    <div style="position:relative;overflow:hidden;min-height:320px;">
+      <img src="${imgs.community}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;">
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(15,42,18,0.55),rgba(15,42,18,0.88));"></div>
+      <div class="pad" style="position:relative;z-index:2;padding:72px 64px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;">
+        <div style="color:oklch(75% 0.13 80);font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:20px;">${esc(d.contactPageEyebrow)}</div>
+        <h1 style="font-family:'Lora',serif;font-size:clamp(38px,5.5vw,68px);font-weight:700;color:white;line-height:1.08;letter-spacing:-0.02em;margin-bottom:24px;">${esc(d.contactPageTitle)}</h1>
+        <p style="font-size:20px;line-height:1.7;color:rgba(255,255,255,0.8);max-width:440px;margin-bottom:40px;">${esc(d.contactPageSub)}</p>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="width:48px;height:48px;background:oklch(75% 0.13 80);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;">✉</div>
+          <div style="font-size:17px;font-weight:700;color:white;">${esc(d.contactEmail)}</div>
+        </div>
+      </div>
+    </div>
+    <div class="pad" style="background:oklch(98% 0.015 80);padding:72px 56px;overflow-y:auto;">
+      <h2 style="font-family:'Lora',serif;font-size:clamp(28px,3.5vw,44px);font-weight:700;letter-spacing:-0.02em;margin-bottom:36px;">${esc(d.contactFormTitle)}</h2>
+      <form data-form style="display:flex;flex-direction:column;gap:20px;">
+        ${state.formSent ? `<div style="background:oklch(92% 0.06 145);color:oklch(26% 0.12 145);padding:18px 22px;border-radius:14px;font-weight:600;font-size:17px;text-align:center;">${esc(d.formSuccessMsg)}</div>` : ''}
+        <div>
+          <label style="display:block;font-size:15px;font-weight:600;color:oklch(28% 0.06 145);margin-bottom:9px;">${esc(d.contactNameLabel)}</label>
+          <input type="text" required style="width:100%;border:1.5px solid oklch(88% 0.04 145);border-radius:12px;padding:15px 18px;font-size:17px;font-family:inherit;outline:none;background:white;">
+        </div>
+        <div>
+          <label style="display:block;font-size:15px;font-weight:600;color:oklch(28% 0.06 145);margin-bottom:9px;">${esc(d.contactEmailLabel)}</label>
+          <input type="email" required style="width:100%;border:1.5px solid oklch(88% 0.04 145);border-radius:12px;padding:15px 18px;font-size:17px;font-family:inherit;outline:none;background:white;">
+        </div>
+        <div>
+          <label style="display:block;font-size:15px;font-weight:600;color:oklch(28% 0.06 145);margin-bottom:9px;">${esc(d.contactRoleLabel)}</label>
+          <select style="width:100%;border:1.5px solid oklch(88% 0.04 145);border-radius:12px;padding:15px 18px;font-size:17px;font-family:inherit;outline:none;background:white;color:oklch(18% 0.04 145);">
+            <option>${esc(d.roleOpt1)}</option>
+            <option>${esc(d.roleOpt2)}</option>
+            <option>${esc(d.roleOpt3)}</option>
+            <option>${esc(d.roleOpt4)}</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:15px;font-weight:600;color:oklch(28% 0.06 145);margin-bottom:9px;">${esc(d.contactMsgLabel)}</label>
+          <textarea style="width:100%;border:1.5px solid oklch(88% 0.04 145);border-radius:12px;padding:15px 18px;font-size:17px;font-family:inherit;outline:none;height:130px;resize:vertical;background:white;"></textarea>
+        </div>
+        <button type="submit" style="background:oklch(42% 0.14 145);color:white;border:none;padding:17px 36px;border-radius:100px;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit;">${esc(d.contactSend)}</button>
+      </form>
+      <div style="margin-top:48px;padding-top:40px;border-top:1px solid oklch(90% 0.04 145);">
+        <div style="font-size:14px;font-weight:700;color:oklch(40% 0.08 145);margin-bottom:16px;text-transform:uppercase;letter-spacing:0.08em;">${esc(d.contactWaysTitle)}</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div style="padding:12px 20px;background:oklch(92% 0.06 145);border-radius:10px;font-size:15px;font-weight:600;color:oklch(30% 0.12 145);">${esc(d.contactVolunteer)}</div>
+          <div style="padding:12px 20px;background:oklch(96% 0.015 80);border-radius:10px;font-size:15px;font-weight:600;color:oklch(38% 0.04 145);">${esc(d.contactSponsor)}</div>
+          <div style="padding:12px 20px;background:oklch(92% 0.06 145);border-radius:10px;font-size:15px;font-weight:600;color:oklch(30% 0.12 145);">${esc(d.contactFollow)}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  ${footer(d, true)}
+</div>`;
+}
+
+const PAGES = { home, mission, activities: activitiesPage, founders: foundersPage, contact: contactPage };
+
+function render() {
+  const d = data();
+  document.documentElement.lang = state.lang;
+  document.querySelector('.t-navMission').textContent = d.navMission;
+  document.querySelector('.t-navActivities').textContent = d.navActivities;
+  document.querySelector('.t-navFounders').textContent = d.navFounders;
+  document.querySelector('.t-navContact').textContent = d.navContact;
+  document.getElementById('lang-btn').textContent = d.langLabel;
+  document.getElementById('app').innerHTML = (PAGES[state.page] || home)(d);
+}
+
+function goTo(p) { state.page = p; state.formSent = false; window.scrollTo(0, 0); render(); }
+
+document.addEventListener('click', (e) => {
+  const goBtn = e.target.closest('[data-go]');
+  if (goBtn) { goTo(goBtn.getAttribute('data-go')); return; }
+  if (e.target.closest('#lang-btn')) { state.lang = state.lang === 'vi' ? 'en' : 'vi'; render(); }
+});
+
+document.addEventListener('submit', (e) => {
+  if (e.target.matches('[data-form]')) {
+    e.preventDefault();
+    state.formSent = true;
+    render();
+    setTimeout(() => { state.formSent = false; render(); }, 4000);
+  }
+});
+
+render();
+</script>
+</body>
+</html>
