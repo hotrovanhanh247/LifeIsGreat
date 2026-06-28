@@ -21,6 +21,8 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: oklch(98.5% 0.0
   #mission-grid, #contact-grid { grid-template-columns: 1fr !important; }
   #gallery-grid { grid-template-columns: 1fr 1fr !important; grid-template-rows: auto !important; }
   #gallery-main { grid-row: auto !important; }
+  #gallery-page-grid { grid-template-columns: 1fr 1fr !important; grid-template-rows: auto !important; }
+  #gallery-page-row2 { grid-template-columns: repeat(2,1fr) !important; }
   .founder-row, .founder-row-r, .act-row, .act-row-r { flex-direction: column !important; }
   .founder-photo { width: 100% !important; height: 360px !important; }
   .act-img { width: 100% !important; height: 260px !important; }
@@ -32,7 +34,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: oklch(98.5% 0.0
 @media (max-width: 640px) {
   nav { padding: 0 20px !important; height: 64px !important; }
   nav button[data-go="home"] { font-size: 24px !important; }
-  .t-navMission, .t-navActivities, .t-navFounders, .t-navContact { display: none !important; }
+  .t-navMission, .t-navActivities, .t-navFounders, .t-navGallery, .t-navContact { display: none !important; }
   #nav-links { gap: 0 !important; }
   section, .pad { padding-left: 20px !important; padding-right: 20px !important; }
 
@@ -46,6 +48,8 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: oklch(98.5% 0.0
   #founders-grid   { grid-template-columns: repeat(2,1fr) !important; }
   #stats-grid      { gap: 14px !important; }
   #gallery-grid    { grid-template-columns: 1fr !important; grid-template-rows: repeat(5,220px) !important; }
+  #gallery-page-grid { grid-template-columns: 1fr !important; grid-template-rows: repeat(5,220px) !important; }
+  #gallery-page-row2 { grid-template-columns: 1fr !important; }
 
   .founder-photo { height: 220px !important; }
   .act-img { height: 200px !important; }
@@ -76,10 +80,11 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: oklch(98.5% 0.0
 <body>
 <nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(20,46,23,0.97);backdrop-filter:blur(12px);height:96px;display:flex;align-items:center;justify-content:space-between;padding:0 56px;">
   <button data-go="home" style="font-family:'Lora',serif;font-size:34px;font-weight:700;color:white;letter-spacing:-0.02em;background:none;border:none;cursor:pointer;">Life is <em style="color:oklch(75% 0.13 80);font-style:italic;">Great</em></button>
-  <div id="nav-links" style="display:flex;align-items:center;gap:40px;">
+  <div id="nav-links" style="display:flex;align-items:center;gap:36px;">
     <button data-go="mission" class="t-navMission" style="color:rgba(255,255,255,0.88);background:none;border:none;cursor:pointer;font-size:22px;font-weight:700;font-family:inherit;"></button>
-    <button data-go="activities" class="t-navActivities" style="color:rgba(255,255,255,0.88);background:none;border:none;cursor:pointer;font-size:22px;font-weight:700;font-family:inherit;"></button>
     <button data-go="founders" class="t-navFounders" style="color:rgba(255,255,255,0.88);background:none;border:none;cursor:pointer;font-size:22px;font-weight:700;font-family:inherit;"></button>
+    <button data-go="activities" class="t-navActivities" style="color:rgba(255,255,255,0.88);background:none;border:none;cursor:pointer;font-size:22px;font-weight:700;font-family:inherit;"></button>
+    <button data-go="gallery" class="t-navGallery" style="color:rgba(255,255,255,0.88);background:none;border:none;cursor:pointer;font-size:22px;font-weight:700;font-family:inherit;"></button>
     <button data-go="contact" class="t-navContact" style="color:rgba(255,255,255,0.88);background:none;border:none;cursor:pointer;font-size:22px;font-weight:700;font-family:inherit;"></button>
     <button id="lang-btn" style="background:oklch(75% 0.13 80);color:oklch(22% 0.08 80);border:none;padding:10px 24px;border-radius:100px;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:0.06em;"></button>
   </div>
@@ -111,8 +116,8 @@ function data() {
 
   const founders = [
     { nickname: 'Liny', fullName: 'Nguyễn Trần Phương Linh', role: vi ? 'Trưởng dự án · Y tế & Định hướng' : 'Project Lead · Healthcare & Direction', bio: vi ? 'Đam mê y học và cộng đồng. Nhắm đến NUS Medicine Singapore — và trái tim của những đứa trẻ vùng cao.' : 'Passionate about medicine & community. Targeting NUS Medicine Singapore.', photo: enc('photos-1782578667966.jpg'), color: 'oklch(42% 0.14 145)', badge: vi ? '🎯 Mục tiêu: NUS Medicine' : '🎯 Goal: NUS Medicine', reverse: false },
-    { nickname: 'Kìu', fullName: '', role: vi ? 'Co-founder · Đối ngoại' : 'Co-founder · External Relations', bio: vi ? 'Kết nối dự án với cộng đồng, tổ chức và nhà tài trợ. Xây dựng cầu nối từ trái tim.' : 'Bridges the project with communities, organizations, and sponsors.', photo: enc('Kiu.jpg'), color: 'oklch(48% 0.15 200)', badge: '', reverse: true },
-    { nickname: 'Kem', fullName: '', role: vi ? 'Co-founder · Vận hành' : 'Co-founder · Operations', bio: vi ? 'Đảm bảo mọi chuyến đi được tổ chức chặt chẽ và mang lại hiệu quả cao nhất cho các em nhỏ.' : 'Ensures every expedition is well-organized and maximally impactful.', photo: enc('Kem-f184f235.jpg'), color: 'oklch(55% 0.13 30)', badge: '', reverse: false },
+    { nickname: 'Kem', fullName: '', role: vi ? 'Co-founder · Vận hành' : 'Co-founder · Operations', bio: vi ? 'Đảm bảo mọi chuyến đi được tổ chức chặt chẽ và mang lại hiệu quả cao nhất cho các em nhỏ.' : 'Ensures every expedition is well-organized and maximally impactful.', photo: enc('Kem.jpg'), color: 'oklch(55% 0.13 30)', badge: '', reverse: true },
+    { nickname: 'Kìu', fullName: '', role: vi ? 'Co-founder · Đối ngoại' : 'Co-founder · External Relations', bio: vi ? 'Kết nối dự án với cộng đồng, tổ chức và nhà tài trợ. Xây dựng cầu nối từ trái tim.' : 'Bridges the project with communities, organizations, and sponsors.', photo: enc('Kiu.jpg'), color: 'oklch(48% 0.15 200)', badge: '', reverse: false },
     { nickname: 'Susi', fullName: 'Nguyễn Đức Quang', role: vi ? 'Co-founder · Hoạt động & Vui chơi' : 'Co-founder · Activities & Recreation', bio: vi ? 'Thiết kế hoạt động vui chơi và giáo dục sáng tạo, phù hợp với trẻ em vùng cao.' : 'Designs fun and creative educational activities for highland children.', photo: enc('Susi.jpg'), color: 'oklch(48% 0.14 260)', badge: '', reverse: true },
     { nickname: 'Gạo', fullName: '', role: vi ? 'Co-founder · Truyền thông & Gây quỹ' : 'Co-founder · Comms & Fundraising', bio: vi ? 'Kể câu chuyện dự án, huy động nguồn lực và lan tỏa tinh thần thiện nguyện rộng khắp.' : 'Tells the project story and spreads the spirit of giving far and wide.', photo: enc('gao.jpg'), color: 'oklch(62% 0.12 80)', badge: '', reverse: false },
   ];
@@ -142,7 +147,7 @@ function data() {
   return {
     vi, imgs, founders, activities, activitiesDetailed, journey,
     langLabel: vi ? 'EN' : 'VI',
-    navMission: vi ? 'Sứ mệnh' : 'Mission', navActivities: vi ? 'Hoạt động' : 'Activities', navFounders: 'Founders', navContact: vi ? 'Liên hệ' : 'Contact',
+    navMission: vi ? 'Sứ mệnh' : 'Mission', navFounders: 'Founders', navActivities: vi ? 'Dự án' : 'Project', navGallery: vi ? 'Thư viện ảnh' : 'Gallery', navContact: vi ? 'Liên hệ' : 'Contact',
     heroEyebrow: vi ? 'Dự án thiện nguyện học sinh · 2025–2027' : 'Student Volunteer Project · 2025–2027',
     heroTagline: vi ? 'Tri thức là ánh sáng. Chúng mình mang nó đến những trẻ em vùng cao Việt Nam cần nhất.' : "Knowledge is light. We bring it to the children of Vietnam's highlands who need it most.",
     heroCTA1: vi ? 'Khám phá dự án' : 'Explore the Project', heroCTA2: vi ? 'Gặp gỡ founders' : 'Meet the Founders',
@@ -192,6 +197,7 @@ function data() {
     contactRoleLabel: vi ? 'Bạn muốn tham gia như thế nào?' : 'How would you like to help?',
     roleOpt1: vi ? 'Tình nguyện viên' : 'Volunteer', roleOpt2: vi ? 'Nhà tài trợ / Quyên góp' : 'Sponsor / Donor', roleOpt3: vi ? 'Truyền thông & Chia sẻ' : 'Media & Sharing', roleOpt4: vi ? 'Chỉ muốn cổ vũ!' : 'Just cheering you on!',
     contactWaysTitle: vi ? 'Các cách hợp tác' : 'Ways to Help',
+    galleryDragHint: vi ? 'Khoảnh khắc từ chuyến đi — mùa hè 2025.' : 'Moments from our first expedition — summer 2025.',
   };
 }
 
@@ -562,7 +568,38 @@ function contactPage(d) {
 </div>`;
 }
 
-const PAGES = { home, mission, activities: activitiesPage, founders: foundersPage, contact: contactPage };
+function galleryPage(d) {
+  return `<div style="padding-top:96px;animation:pageFade 0.4s ease both;background:oklch(18% 0.08 145);min-height:100vh;">
+  <div style="max-width:1400px;margin:0 auto;padding:64px 56px;" class="pad">
+    <div style="text-align:center;margin-bottom:64px;">
+      <div style="color:oklch(75% 0.13 80);font-size:20px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px;">${esc(d.galleryEyebrow)}</div>
+      <h1 style="font-family:'Lora',serif;font-size:clamp(44px,7vw,80px);font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:16px;">${esc(d.galleryTitle)}</h1>
+      <p style="color:rgba(255,255,255,0.5);font-size:18px;font-style:italic;">${esc(d.gallerySub)}</p>
+    </div>
+    <div id="gallery-page-grid" style="display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:400px 400px;gap:16px;margin-bottom:16px;">
+      <div style="grid-row:span 2;border-radius:20px;overflow:hidden;background:oklch(35% 0.10 145);">
+        <img src="${enc('photos-1782578667966.jpg')}" alt="Life is Great — Hà Giang 2025" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;">
+      </div>
+      <div style="border-radius:20px;overflow:hidden;background:oklch(35% 0.10 145);"><img src="${imgs.children}" alt="Ảnh hoạt động" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+      <div style="border-radius:20px;overflow:hidden;background:oklch(35% 0.10 145);"><img src="${imgs.classroom}" alt="Ảnh lớp học" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+      <div style="border-radius:20px;overflow:hidden;background:oklch(35% 0.10 145);"><img src="${imgs.giving}" alt="Ảnh tặng quà" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+      <div style="border-radius:20px;overflow:hidden;background:oklch(35% 0.10 145);"><img src="${imgs.village}" alt="Ảnh vùng cao" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+    </div>
+    <div id="gallery-page-row2" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+      <div style="border-radius:20px;overflow:hidden;height:280px;background:oklch(35% 0.10 145);"><img src="${imgs.books}" alt="Ảnh sách vở" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+      <div style="border-radius:20px;overflow:hidden;height:280px;background:oklch(35% 0.10 145);"><img src="${imgs.community}" alt="Ảnh cộng đồng" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+      <div style="border-radius:20px;overflow:hidden;height:280px;background:oklch(35% 0.10 145);"><img src="${imgs.medical}" alt="Ảnh y tế" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+    </div>
+    <p style="text-align:center;margin-top:48px;color:rgba(255,255,255,0.35);font-size:16px;font-style:italic;">${esc(d.galleryDragHint)}</p>
+  </div>
+  <footer style="background:oklch(12% 0.05 145);padding:48px 56px;text-align:center;margin-top:60px;" class="pad">
+    <button data-go="home" style="font-family:'Lora',serif;font-size:26px;font-weight:700;color:white;background:none;border:none;cursor:pointer;display:block;margin:0 auto 12px;">Life is <em style="color:oklch(75% 0.13 80);font-style:italic;">Great</em></button>
+    <div style="color:rgba(255,255,255,0.28);font-size:14px;">${esc(d.footerCopy)}</div>
+  </footer>
+</div>`;
+}
+
+const PAGES = { home, mission, activities: activitiesPage, founders: foundersPage, contact: contactPage, gallery: galleryPage };
 
 function render() {
   const d = data();
@@ -570,6 +607,7 @@ function render() {
   document.querySelector('.t-navMission').textContent = d.navMission;
   document.querySelector('.t-navActivities').textContent = d.navActivities;
   document.querySelector('.t-navFounders').textContent = d.navFounders;
+  document.querySelector('.t-navGallery').textContent = d.navGallery;
   document.querySelector('.t-navContact').textContent = d.navContact;
   document.getElementById('lang-btn').textContent = d.langLabel;
   document.getElementById('app').innerHTML = (PAGES[state.page] || home)(d);
